@@ -468,6 +468,32 @@ function initPlayer(videoUrl) {
         hotkey: false,
         theme: '#23ade5',
         lang: navigator.language.toLowerCase(),
+            plugins: [
+        artplayerPluginHlsControl({
+            quality: {
+                // Show qualitys in control
+                control: true,
+                // Show qualitys in setting
+                setting: true,
+                // Get the quality name from level
+                getName: (level) => level.height + 'P',
+                // I18n
+                title: 'Quality',
+                auto: 'Auto',
+            },
+            audio: {
+                // Show audios in control
+                control: true,
+                // Show audios in setting
+                setting: true,
+                // Get the audio name from track
+                getName: (track) => track.name,
+                // I18n
+                title: 'Audio',
+                auto: 'Auto',
+            }
+        }),
+    ],
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
