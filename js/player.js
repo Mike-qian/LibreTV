@@ -480,32 +480,27 @@ function initPlayer(videoUrl) {
         // 播放前的最小缓冲时间(秒)
         playBufferLength: 1.5,
         },
-            plugins: [
-        artplayerPluginHlsControl({
-            quality: {
-                // Show qualitys in control
-                control: true,
-                // Show qualitys in setting
-                setting: true,
-                // Get the quality name from level
-                getName: (level) => level.height + 'P',
-                // I18n
-                title: 'Quality',
-                auto: 'Auto',
-            },
-            audio: {
-                // Show audios in control
-                control: true,
-                // Show audios in setting
-                setting: true,
-                // Get the audio name from track
-                getName: (track) => track.name,
-                // I18n
-                title: 'Audio',
-                auto: 'Auto',
-            }
-        }),
-    ],
+plugins: [
+    artplayerPluginHlsControl({
+        // 1. 新增：传递 HLS 实例，插件依赖此获取分辨率列表
+        getHls: () => currentHls, 
+
+        quality: {
+            control: true,       // 控制栏显示分辨率按钮
+            setting: true,       // 设置面板显示分辨率选项
+            getName: (level) => level.height + 'P', // 分辨率文本（如 720P）
+            title: 'Quality',    // 分辨率标题（控制栏 hover 提示）
+            auto: 'Auto'         // 自动分辨率选项文本
+        },
+        audio: {
+            control: true,
+            setting: true,
+            getName: (track) => track.name,
+            title: 'Audio',
+            auto: 'Auto'
+        }
+    }),
+],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
