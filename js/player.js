@@ -471,17 +471,6 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
-            plugins: [
-        artplayerPluginHlsControl({
-            quality: {
-                control: true,
-                setting: false,
-                getName: (level) => `${level.height}P`,
-                title: 'Quality',
-                auto: 'Auto',
-            },
-        }),
-    ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
