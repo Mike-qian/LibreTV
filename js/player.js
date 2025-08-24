@@ -485,6 +485,20 @@ function initPlayer(videoUrl) {
                 const hls = new Hls(hlsConfig);
                 currentHls = hls;
 
+                    plugins: [
+        hlsControl({
+            order: 'desc', // 设置分辨率选项从高到低排序
+            auto: 'Auto', // 自定义自动模式显示文本
+            defaultAuto: true, // 默认选中自动模式
+            getName: (level) => {
+                if (level.height >= 1068 && level.height <= 1080) return '1080p (FHD)';
+                if (level.height >= 700 && level.height <= 720) return '720p (HD)';
+                if (level.height >= 350 && level.height <= 360) return '360p';
+                return `${level.height}p`;
+            }
+        })
+    ]
+});
                 // 跟踪是否已经显示错误
                 let errorDisplayed = false;
                 // 跟踪是否有错误发生
