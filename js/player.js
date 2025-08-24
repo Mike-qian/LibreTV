@@ -441,7 +441,7 @@ function initPlayer(videoUrl) {
     art = new Artplayer({
         container: '#player',
         url: videoUrl,
-        type: 'hls',
+        type: 'm3u8',
         title: videoTitle,
         volume: 0.8,
         isLive: false,
