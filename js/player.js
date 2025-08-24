@@ -560,7 +560,11 @@ plugins: [
                     video.play().catch(e => {
                     });
                 });
-
+            if (art && art.plugins && art.plugins.hlsControl) {
+                art.plugins.hlsControl.updateLevels(); // 同步 levels 数据
+                console.log('插件已更新分辨率列表，levels:', currentHls.levels); // 日志验证
+            }
+        });
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     // 增加错误计数
                     errorCount++;
