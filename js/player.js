@@ -469,7 +469,7 @@ function initPlayer(videoUrl) {
         theme: '#23ade5',
         lang: navigator.language.toLowerCase(),
             plugins: [
-      ArtPlayer.plugin.hlsControl({
+      artplayerPluginHlsControl({
         // HLS 插件可选配置（根据需求调整）
         hlsOptions: {
           // hls.js 配置参数（传递给 hls.js 实例，如缓存、超时等）
