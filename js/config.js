@@ -204,7 +204,7 @@ dyttzy: {
 
     name: '量子资源站'
 
-  },
+  }
     //ARCHIVE https://telegra.ph/APIs-08-12
 };
 
