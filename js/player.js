@@ -471,43 +471,15 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
-                        plugins: [
-                    // HLS控制插件配置
-                    hlsControl({
-                        order: 'desc', // 分辨率从高到低排序
-                        auto: '自动（根据网络）', // 自定义自动模式文本
-                        defaultAuto: true, // 默认选中自动模式
-                        
-                        // 自动识别分辨率并格式化显示名称
-                        getName: (level) => {
-                            // 自动识别高度并转换为标准清晰度名称
-                            const definitions = [
-                                { min: 1080, name: '1080p (全高清)' },
-                                { min: 720, name: '720p (高清)' },
-                                { min: 480, name: '480p (标清)' },
-                                { min: 360, name: '360p (流畅)' },
-                                { min: 0, name: `${level.height}p` } // 默认使用实际高度
-                            ];
-                            
-                            // 匹配最合适的清晰度名称
-                            const match = definitions.find(def => level.height >= def.min);
-                            return match ? match.name : `${level.height}p`;
-                        },
-
-                        // 切换分辨率时的回调
-                        onSwitch: (level) => {
-                            console.log(`切换到分辨率: ${level.height}p (带宽: ${(level.bitrate/1024/1024).toFixed(2)}Mbps)`);
-                            // 可以在这里添加分辨率切换时的自定义逻辑
-                            document.getElementById('loading').style.display = 'block';
-                            
-                            // 切换完成后隐藏加载状态
-                            setTimeout(() => {
-                                if (art.video.paused) return;
-                                document.getElementById('loading').style.display = 'none';
-                            }, 1000);
-                        }
-                    })
-                ],
+        preload: 'auto', // 预加载策略: 'none' | 'metadata' | 'auto'
+        buffer: {
+        // 最小缓冲时间(秒)，达到此时间才会暂停缓冲
+        minBufferLength: 300,
+        // 最大缓冲时间(秒)，超过此时间会停止缓冲
+        maxBufferLength: 600,
+        // 播放前的最小缓冲时间(秒)
+        playBufferLength: 1.5,
+        },
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
