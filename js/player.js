@@ -471,6 +471,15 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
+                plugins: [
+            artplayerPluginHlsControl({
+                // 插件配置选项
+                position: 'right', // 显示在控制栏右侧
+                title: '分辨率', // 悬停提示文字
+                isAuto: true, // 显示自动选择选项
+                autoText: '自动', // 自动选项的文字
+            })
+        ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
@@ -484,7 +493,7 @@ function initPlayer(videoUrl) {
                 // 创建新的HLS实例
                 const hls = new Hls(hlsConfig);
                 currentHls = hls;
-
+                art.plugins.hlsControl.setHls(hls);
                 // 跟踪是否已经显示错误
                 let errorDisplayed = false;
                 // 跟踪是否有错误发生
