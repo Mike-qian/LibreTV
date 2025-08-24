@@ -144,7 +144,6 @@ qgtaopian: {
 qgikun: {
     name: 'Ikun资源',
     api: 'https://ikunzyapi.com/api.php/provide/vod',
-    detail: 'https://www.ikunzy.com/',
   }
     //ARCHIVE https://telegra.ph/APIs-08-12
 };
