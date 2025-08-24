@@ -468,6 +468,27 @@ function initPlayer(videoUrl) {
         hotkey: false,
         theme: '#23ade5',
         lang: navigator.language.toLowerCase(),
+            plugins: [
+      ArtPlayer.plugin.hlsControl({
+        // HLS 插件可选配置（根据需求调整）
+        hlsOptions: {
+          // hls.js 配置参数（传递给 hls.js 实例，如缓存、超时等）
+          enableWorker: true, // 启用 Web Worker 解析 HLS，提升性能
+          lowLatencyMode: true, // 启用低延迟模式（适合直播场景）
+          maxBufferLength: 30, // 最大缓存长度（秒），避免卡顿
+        },
+
+        // 是否显示码率切换控件（默认 true，支持多码率 m3u8 切换）
+        showQualitySwitch: true,
+
+        // 自定义码率名称映射（若 m3u8 包含多码率，可优化显示名称）
+        qualityMap: {
+          '720p': '高清 720P',
+          '480p': '标清 480P',
+          '360p': '流畅 360P',
+        },
+      }),
+    ],
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
