@@ -415,8 +415,8 @@ function initPlayer(videoUrl) {
         enableWorker: true,
         lowLatencyMode: false,
         backBufferLength: 90,
-        maxBufferLength: 300,
-        maxMaxBufferLength: 600,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
         maxBufferSize: 30 * 1000 * 1000,
         maxBufferHole: 0.5,
         fragLoadingMaxRetry: 6,
@@ -471,36 +471,6 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
-        preload: 'auto', // 预加载策略: 'none' | 'metadata' | 'auto'
-        buffer: {
-        // 最小缓冲时间(秒)，达到此时间才会暂停缓冲
-        minBufferLength: 300,
-        // 最大缓冲时间(秒)，超过此时间会停止缓冲
-        maxBufferLength: 600,
-        // 播放前的最小缓冲时间(秒)
-        playBufferLength: 1.5,
-        },
-plugins: [
-    artplayerPluginHlsControl({
-        // 1. 新增：传递 HLS 实例，插件依赖此获取分辨率列表
-        getHls: () => currentHls, 
-
-        quality: {
-            control: true,       // 控制栏显示分辨率按钮
-            setting: true,       // 设置面板显示分辨率选项
-            getName: (level) => level.height + 'P', // 分辨率文本（如 720P）
-            title: 'Quality',    // 分辨率标题（控制栏 hover 提示）
-            auto: 'Auto'         // 自动分辨率选项文本
-        },
-        audio: {
-            control: true,
-            setting: true,
-            getName: (track) => track.name,
-            title: 'Audio',
-            auto: 'Auto'
-        }
-    }),
-],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
@@ -560,11 +530,7 @@ plugins: [
                     video.play().catch(e => {
                     });
                 });
-            if (art && art.plugins && art.plugins.hlsControl) {
-                art.plugins.hlsControl.updateLevels(); // 同步 levels 数据
-                console.log('插件已更新分辨率列表，levels:', currentHls.levels); // 日志验证
-            }
-        });
+
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     // 增加错误计数
                     errorCount++;
