@@ -471,21 +471,6 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
-            plugins: [
-                hlsControl({
-                    order: 'desc', // 分辨率从高到低排序
-                    auto: 'Auto', // 自动模式显示文本
-                    defaultAuto: true, // 默认选中自动模式
-                    // 自定义分辨率显示名称
-                    getName: (level) => {
-                        if (level.height >= 1068 && level.height <= 1080) return '1080p (FHD)';
-                        if (level.height >= 700 && level.height <= 720) return '720p (HD)';
-                        if (level.height >= 350 && level.height <= 360) return '360p';
-                        if (level.height >= 180 && level.height <= 240) return '240p (SD)';
-                        return `${level.height}p`;
-                    }
-                })
-            ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
