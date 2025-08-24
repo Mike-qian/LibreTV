@@ -94,11 +94,11 @@ lzi: {
     name: '量子资源站',
   },
 qgbaiduyun: {
-    api: 'https://api.apibdzy.com/api.php/provide/vod/?ac=list',
+    api: 'https://api.apibdzy.com/api.php/provide/vod',
     name: '百度云资源',
   },
 qgwujin: {
-    api: 'https://api.wujinapi.com/api.php/provide/vod/?ac=list',
+    api: 'https://api.wujinapi.com/api.php/provide/vod',
     name: '百度云资源',
   },
 qgsuoni: {
@@ -158,7 +158,7 @@ qgtaopian: {
     name: '淘片资源网',
   },
 qguku: {
-    api: 'https://api.ukuapi88.com/api.php/provide/vod/?ac=list',
+    api: 'https://api.ukuapi88.com/api.php/provide/vod',
     name: 'U酷资源网',
   },
 qgikun: {
