@@ -471,6 +471,32 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
+            plugins: [
+        artplayerPluginHlsControl({
+            quality: {
+                // Show qualitys in control
+                control: true,
+                // Show qualitys in setting
+                setting: true,
+                // Get the quality name from level
+                getName: (level) => level.height + 'P',
+                // I18n
+                title: 'Quality',
+                auto: 'Auto',
+            },
+            audio: {
+                // Show audios in control
+                control: true,
+                // Show audios in setting
+                setting: true,
+                // Get the audio name from track
+                getName: (track) => track.name,
+                // I18n
+                title: 'Audio',
+                auto: 'Auto',
+            }
+        }),
+    ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
@@ -484,7 +510,7 @@ function initPlayer(videoUrl) {
                 // 创建新的HLS实例
                 const hls = new Hls(hlsConfig);
                 currentHls = hls;
-
+                art.hls = hls;
                 // 跟踪是否已经显示错误
                 let errorDisplayed = false;
                 // 跟踪是否有错误发生
