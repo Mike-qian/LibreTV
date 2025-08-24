@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 设置默认API选择（如果是第一次加载）
     if (!localStorage.getItem('hasInitializedDefaults')) {
         // 默认选中资源
-        selectedAPIs = ["tyyszy", "bfzy", "dyttzy", "ruyi", "xiaomaomi", "ffzy", "heimuer", "zy360", "iqiyi", "wolong", "hwba", "jisu", "dbzy", "mozhua", "mdzy", "zuid", "yinghua", "baidu", "wujin", "wwzy", "ikun", "lzi"];
+        selectedAPIs = ["tyyszy", "bfzy", "dyttzy", "ruyi", "xiaomaomi", "ffzy", "heimuer", "zy360", "wolong", "jisu", "dbzy", "mozhua", "mdzy", "zuid", "yinghua", "wujin", "wwzy", "lzi", "maotaizy", "qgbaiduyun", "qgwujin", "qgheimuer", "qgwolong", "qgsuoni", "qghongnui", "qgfeifan", "qglingzi", "qgqungsu", "qgck", "qgshandian", "qghuohu", "qghuya", "qgyinghua", "qgsiquan", "qgheimuer2", "qgxinlang", "qgjinying", "qgyouzhiziyuanku", "qgtaopian", "qguku", "qg115", "qgtaohua", "qgaosika", "qgsenlin", "qgnaixiangxiang", "qgshayu", "qgfanhao", "qgjkun", "qgdidi", "qghaiwaikan", "qgikun"];
         localStorage.setItem('selectedAPIs', JSON.stringify(selectedAPIs));
 
         // 默认选中过滤开关
