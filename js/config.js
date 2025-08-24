@@ -117,10 +117,6 @@ qglingzi: {
     api: 'https://cj.lziapi.com/api.php/provide/vod/',
     name: '量子资源',
   },
-qgqungsu: {
-    api: 'https://api.guangsuapi.com/api.php/provide/vod/',
-    name: '光速资源',
-  },
 qgck: {
     api: 'https://ckzy.me/api.php/provide/vod',
     name: 'CK资源',
@@ -133,10 +129,6 @@ qghuohu: {
     api: 'https://hhzyapi.com/api.php/provide/vod/',
     name: '火狐资源',
   },
-qghuya: {
-    api: 'https://www.huyaapi.com/api.php/provide/vod/',
-    name: '虎牙资源',
-  },
 qgsiquan: {
     api: 'https://pg.fenwe078.cf/api.php/provide/vod/',
     name: '四圈资源',
@@ -145,25 +137,13 @@ qgxinlang: {
     api: 'https://api.xinlangapi.com/xinlangapi.php/provide/vod/',
     name: '新浪资源',
   },
-qgjinying: {
-    api: 'https://jyzyapi.com/provide/vod/',
-    name: '金鹰资源',
-  },
-qgyouzhiziyuanku: {
-    api: 'https://api.yzzy-api.com/inc/api_mac10_all.php',
-    name: '优质资源库',
-  },
 qgtaopian: {
     api: 'https://taopianapi.com/cjapi/mc10/vod/json.html',
     name: '淘片资源网',
   },
-qguku: {
-    api: 'https://api.ukuapi88.com/api.php/provide/vod',
-    name: 'U酷资源网',
-  },
 qgikun: {
     name: 'Ikun资源',
-    api: 'https://www.ikunzy.com/api.php/provide/vod',
+    api: 'https://ikunzyapi.com/api.php/provide/vod',
     detail: 'https://www.ikunzy.com/',
   }
     //ARCHIVE https://telegra.ph/APIs-08-12
