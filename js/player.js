@@ -1,3 +1,4 @@
+import artplayerPluginHlsControl from 'artplayer-plugin-hls-control';
 const selectedAPIs = JSON.parse(localStorage.getItem('selectedAPIs') || '[]');
 const customAPIs = JSON.parse(localStorage.getItem('customAPIs') || '[]'); // 存储自定义API列表
 
@@ -471,6 +472,32 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
+            plugins: [
+        artplayerPluginHlsControl({
+            quality: {
+                // Show qualitys in control
+                control: true,
+                // Show qualitys in setting
+                setting: true,
+                // Get the quality name from level
+                getName: (level) => level.height + 'P',
+                // I18n
+                title: 'Quality',
+                auto: 'Auto',
+            },
+            audio: {
+                // Show audios in control
+                control: true,
+                // Show audios in setting
+                setting: true,
+                // Get the audio name from track
+                getName: (track) => track.name,
+                // I18n
+                title: 'Audio',
+                auto: 'Auto',
+            }
+        }),
+    ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
