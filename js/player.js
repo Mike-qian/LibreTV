@@ -480,6 +480,32 @@ function initPlayer(videoUrl) {
         // 播放前的最小缓冲时间(秒)
         playBufferLength: 1.5,
         },
+            plugins: [
+        artplayerPluginHlsControl({
+            quality: {
+                // Show qualitys in control
+                control: true,
+                // Show qualitys in setting
+                setting: true,
+                // Get the quality name from level
+                getName: (level) => level.height + 'P',
+                // I18n
+                title: 'Quality',
+                auto: 'Auto',
+            },
+            audio: {
+                // Show audios in control
+                control: true,
+                // Show audios in setting
+                setting: true,
+                // Get the audio name from track
+                getName: (track) => track.name,
+                // I18n
+                title: 'Audio',
+                auto: 'Auto',
+            }
+        }),
+    ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
