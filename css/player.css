@@ -410,3 +410,21 @@ input:checked + .slider:before {
     background-color: rgba(35, 173, 229, 0.2) !important;
     color: #23ade5 !important;
 }
+
+/* 音频轨道选择控件样式 */
+.art-control-audio {
+    margin-right: 8px;
+}
+
+.art-audio-panel {
+    width: 120px !important;
+}
+
+.art-audio-item {
+    padding: 8px 16px !important;
+}
+
+.art-audio-item.active {
+    background-color: rgba(35, 173, 229, 0.2) !important;
+    color: #23ade5 !important;
+}
