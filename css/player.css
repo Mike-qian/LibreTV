@@ -393,38 +393,109 @@ input:checked + .slider:before {
 #username {
     display: none !important;
 }
-/* 清晰度选择控件样式 */
-.art-control-quality {
-    margin-right: 8px;
-}
 
-.art-quality-panel {
-    width: 120px !important;
-}
-
-.art-quality-item {
-    padding: 8px 16px !important;
-}
-
-.art-quality-item.active {
-    background-color: rgba(35, 173, 229, 0.2) !important;
-    color: #23ade5 !important;
-}
-
-/* 音频轨道选择控件样式 */
+/* 清晰度和音频选择器基础样式 */
+.art-control-quality,
 .art-control-audio {
-    margin-right: 8px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.art-audio-panel {
-    width: 120px !important;
+.art-control-quality:hover,
+.art-control-audio:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* 下拉菜单容器 */
+.art-quality-menu,
+.art-audio-menu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 10px;
+  padding: 8px 0;
+  background-color: rgba(20, 20, 20, 0.9);
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  min-width: 120px;
+  z-index: 100;
+  transform-origin: bottom right;
+  transform: scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+/* 菜单显示状态 */
+.art-quality-menu.show,
+.art-audio-menu.show {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 菜单项样式 */
+.art-quality-item,
 .art-audio-item {
-    padding: 8px 16px !important;
+  padding: 8px 16px;
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
+.art-quality-item:hover,
+.art-audio-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* 当前选中项样式 */
+.art-quality-item.active,
 .art-audio-item.active {
-    background-color: rgba(35, 173, 229, 0.2) !important;
-    color: #23ade5 !important;
+  color: #4285f4;
+  font-weight: 500;
+}
+
+/* 选中项指示图标 */
+.art-quality-item.active::after,
+.art-audio-item.active::after {
+  content: "✓";
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+/* 自动选项特殊样式 */
+.art-quality-item.auto::before,
+.art-audio-item.auto::before {
+  content: "Auto";
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* 分隔线 */
+.art-quality-separator,
+.art-audio-separator {
+  height: 1px;
+  margin: 4px 0;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 标题样式（如果需要） */
+.art-quality-title,
+.art-audio-title {
+  padding: 6px 16px;
+  color: #aaa;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
