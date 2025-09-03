@@ -394,21 +394,20 @@ input:checked + .slider:before {
     display: none !important;
 }
 
-.artplayer-hls-control {
-    display: block;
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    z-index: 9999;
-}
-.artplayer-hls-control select {
-    background-color: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    padding: 5px;
-    border-radius: 4px;
-}
-.artplayer-hls-control .quality,
-.artplayer-hls-control .audio {
-    margin-right: 15px;
+/* 清晰度选择控件样式 */
+.art-control-quality {
+    margin-right: 8px;
 }
 
+.art-quality-panel {
+    width: 120px !important;
+}
+
+.art-quality-item {
+    padding: 8px 16px !important;
+}
+
+.art-quality-item.active {
+    background-color: rgba(35, 173, 229, 0.2) !important;
+    color: #23ade5 !important;
+}
