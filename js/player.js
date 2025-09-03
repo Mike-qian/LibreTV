@@ -475,9 +475,9 @@ function initPlayer(videoUrl) {
         artplayerPluginHlsControl({
             quality: {
                 // Show qualitys in control
-                control: true,
+                control: false,
                 // Show qualitys in setting
-                setting: true,
+                setting: false,
                 // Get the quality name from level
                 getName: (level) => level.height + 'P',
                 // I18n
@@ -486,9 +486,9 @@ function initPlayer(videoUrl) {
             },
             audio: {
                 // Show audios in control
-                control: true,
+                control: false,
                 // Show audios in setting
-                setting: true,
+                setting: false,
                 // Get the audio name from track
                 getName: (track) => track.name,
                 // I18n
