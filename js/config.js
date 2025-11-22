@@ -74,10 +74,6 @@ tangrenjie2: {
 api: 'http://tangrenjie.tv/api.php/provide/vod/at/xm',
 name: '唐人街',
 },
-senlin: {
-api: 'http://slapibf.com/api.php/provide/vod',
-name: '森林资源',
-},
 yingku: {
 api: 'http://api.ykapi.net/api.php/provide/vod',
 name: '影库资源网',
@@ -153,10 +149,6 @@ name: '飘花电影',
 wangmin: {
 api: 'http://prinevillesda.org/api.php/provide/vod',
 name: '网民电影',
-},
-siwa: {
-api: 'http://siwazyw.cc/api.php/provide/vod',
-name: '丝袜资源',
 },
 tiankong: {
 api: 'http://m3u8.tiankongapi.com/api.php/provide/vod/from/tkm3u8',
