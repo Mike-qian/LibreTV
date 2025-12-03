@@ -24,9 +24,9 @@ async function handleApiRequest(url) {
                 ? `${customApi}${API_CONFIG.search.path}${encodeURIComponent(searchQuery)}`
                 : `${API_SITES[source].api}${API_CONFIG.search.path}${encodeURIComponent(searchQuery)}`;
             
-            // 添加超时处理
+            // 添加超时处理 - 减少超时时间以提高响应速度
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
             
             try {
                 // 添加鉴权参数到代理URL
@@ -34,9 +34,17 @@ async function handleApiRequest(url) {
                     await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(apiUrl)) :
                     PROXY_URL + encodeURIComponent(apiUrl);
                     
+                // 使用Keep-Alive和HTTP/2提高连接复用
                 const response = await fetch(proxiedUrl, {
-                    headers: API_CONFIG.search.headers,
-                    signal: controller.signal
+                    headers: {
+                        ...API_CONFIG.search.headers,
+                        'Connection': 'keep-alive',
+                        'Keep-Alive': 'timeout=5, max=1000'
+                    },
+                    signal: controller.signal,
+                    // 使用缓存控制策略
+                    cache: 'no-cache',
+                    credentials: 'omit'
                 });
                 
                 clearTimeout(timeoutId);
@@ -68,6 +76,10 @@ async function handleApiRequest(url) {
                 });
             } catch (fetchError) {
                 clearTimeout(timeoutId);
+                // 如果是超时错误，提供更友好的错误信息
+                if (fetchError.name === 'AbortError') {
+                    throw new Error('API请求超时，请尝试其他数据源');
+                }
                 throw fetchError;
             }
         }
