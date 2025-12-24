@@ -415,17 +415,17 @@ function initPlayer(videoUrl) {
         enableWorker: true, // 启用Worker模式，提高解析性能
         lowLatencyMode: false,
         backBufferLength: 60, // 保持回退缓冲，减少内存占用
-        maxBufferLength: 60, // 增加最大缓冲长度，提高播放稳定性
+        maxBufferLength: 180, // 增加最大缓冲长度，提高播放稳定性
         maxMaxBufferLength: 120, // 增加最大最大缓冲长度，适应长时间流畅播放
-        maxBufferSize: 80 * 1000 * 1000, // 增加最大缓冲大小，适应高质量视频
+        maxBufferSize: 120 * 1000 * 1000, // 增加最大缓冲大小，适应高质量视频
         maxBufferHole: 0.5, // 减少最大缓冲空洞，提高播放稳定性
         fragLoadingMaxRetry: 8, // 增加片段加载重试次数
         fragLoadingMaxRetryTimeout: 32000, // 减少重试超时时间，更快恢复
         fragLoadingRetryDelay: 300, // 减少重试延迟时间
-        fragLoadingParallelism: 5, // 增加并行加载数，提高缓冲速度
-        manifestLoadingMaxRetry: 5, // 增加清单加载重试次数
+        fragLoadingParallelism: 10, // 增加并行加载数，提高缓冲速度
+        manifestLoadingMaxRetry: 8, // 增加清单加载重试次数
         manifestLoadingRetryDelay: 500, // 减少清单加载重试延迟
-        levelLoadingMaxRetry: 5, // 增加级别加载重试次数
+        levelLoadingMaxRetry: 8, // 增加级别加载重试次数
         levelLoadingRetryDelay: 300, // 减少级别加载重试延迟
         startLevel: -1, // 自动选择最佳起始质量
         abrEwmaDefaultEstimate: 800000, // 提高默认带宽估计，更倾向选择高质量
