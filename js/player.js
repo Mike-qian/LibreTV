@@ -864,17 +864,45 @@ class CustomHlsJsLoader extends Hls.DefaultConfig.loader {
 function filterAdsFromM3U8(m3u8Content, strictMode = false) {
     if (!m3u8Content) return '';
 
-    // 按行分割M3U8内容
     const lines = m3u8Content.split('\n');
     const filteredLines = [];
+    let isSkipping = false;
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i].trim();
 
-        // 只过滤#EXT-X-DISCONTINUITY标识
-        if (!line.includes('#EXT-X-DISCONTINUITY')) {
-            filteredLines.push(line);
+        // 策略 A: 识别常见的广告切片特征
+        // 很多广告切片时长非常固定（如 3s, 5s, 10s）且夹在 DISCONTINUITY 之间
+        if (line.startsWith('#EXTINF:')) {
+            const duration = parseFloat(line.split(':')[1]);
+            // 如果开启严格模式，过滤掉时长极短（小于2秒）的疑似广告片段
+            if (strictMode && duration < 2.0) {
+                // 寻找下一行 URL 并跳过
+                i++; 
+                continue;
+            }
         }
+
+        // 策略 B: 保护 DISCONTINUITY 标签
+        // 不要删除它，但如果它连续出现，可以合并（减少解析压力）
+        if (line === '#EXT-X-DISCONTINUITY') {
+            if (filteredLines[filteredLines.length - 1] === '#EXT-X-DISCONTINUITY') {
+                continue;
+            }
+        }
+
+        // 策略 C: 过滤特定关键词（黑名单）
+        // 如果切片地址包含常见的广告商关键词，则过滤
+        const adKeywords = ['/ads/', 'adshow', 'googleads', 'doubleclick'];
+        if (adKeywords.some(key => line.includes(key)) && !line.startsWith('#')) {
+            // 如果上一行是 EXTINF，也要把上一行删掉
+            if (filteredLines.length > 0 && filteredLines[filteredLines.length - 1].startsWith('#EXTINF')) {
+                filteredLines.pop();
+            }
+            continue;
+        }
+
+        filteredLines.push(line);
     }
 
     return filteredLines.join('\n');
