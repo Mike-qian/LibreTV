@@ -412,46 +412,44 @@ function initPlayer(videoUrl) {
     const hlsConfig = {
         debug: false,
         loader: adFilteringEnabled ? CustomHlsJsLoader : Hls.DefaultConfig.loader,
-        enableWorker: true, // 启用Worker模式，提高解析性能
+        enableWorker: true,
         lowLatencyMode: false,
-        backBufferLength: 60, // 保持回退缓冲，减少内存占用
-        maxBufferLength: 180, // 增加最大缓冲长度，提高播放稳定性
-        maxMaxBufferLength: 120, // 增加最大最大缓冲长度，适应长时间流畅播放
-        maxBufferSize: 120 * 1000 * 1000, // 增加最大缓冲大小，适应高质量视频
-        maxBufferHole: 0.5, // 减少最大缓冲空洞，提高播放稳定性
-        fragLoadingMaxRetry: 8, // 增加片段加载重试次数
-        fragLoadingMaxRetryTimeout: 32000, // 减少重试超时时间，更快恢复
-        fragLoadingRetryDelay: 300, // 减少重试延迟时间
-        fragLoadingParallelism: 10, // 增加并行加载数，提高缓冲速度
-        manifestLoadingMaxRetry: 8, // 增加清单加载重试次数
-        manifestLoadingRetryDelay: 500, // 减少清单加载重试延迟
-        levelLoadingMaxRetry: 8, // 增加级别加载重试次数
-        levelLoadingRetryDelay: 300, // 减少级别加载重试延迟
-        startLevel: -1, // 自动选择最佳起始质量
-        abrEwmaDefaultEstimate: 800000, // 提高默认带宽估计，更倾向选择高质量
-        abrEwmaSlowDownFactor: 0.9, // 减慢带宽估计变化
-        abrBandWidthFactor: 0.7, // 降低带宽因子，更积极地选择高质量
-        abrBandWidthUpFactor: 0.6, // 提高带宽上升因子，更快适应更好网络
-        abrMaxWithRealBitrate: true, // 使用真实比特率
-        stretchShortVideoTrack: true, // 拉伸短视频轨道
-        appendErrorMaxRetry: 5, // 增加追加错误重试次数
+        backBufferLength: 300,
+        maxBufferLength: 600,
+        maxMaxBufferLength: 1800,
+        maxBufferSize: 600 * 1000 * 1000,
+        maxBufferHole: 0.5,
+        fragLoadingMaxRetry: 10,
+        fragLoadingMaxRetryTimeout: 120000,
+        fragLoadingRetryDelay: 500,
+        fragLoadingProgressTimeout: 30000,
+        manifestLoadingMaxRetry: 5,
+        manifestLoadingRetryDelay: 500,
+        manifestLoadingMaxRetryTimeout: 60000,
+        levelLoadingMaxRetry: 6,
+        levelLoadingRetryDelay: 500,
+        levelLoadingMaxRetryTimeout: 60000,
+        startLevel: -1,
+        abrEnabled: false,
+        abrEwmaDefaultEstimate: 10000000,
+        abrBandWidthFactor: 0.95,
+        abrBandWidthUpFactor: 0.7,
+        abrMaxWithRealBitrate: true,
+        abrEwmaFastLive: 3.0,
+        abrEwmaSlowLive: 9.0,
+        abrEwmaFastVoD: 3.0,
+        abrEwmaSlowVoD: 9.0,
+        stretchShortVideoTrack: true,
+        appendErrorMaxRetry: 10,
         liveSyncDurationCount: 3,
         liveDurationInfinity: false,
-        // 启用HLS缓存
-        enableNetworkCache: true,
-        // 启用播放器缓冲控制
-        enableSoftwareAES: true, // 启用软件AES解密，提高兼容性
-        progressive: false, // 禁用渐进式加载，使用流媒体加载
-        // 优化初始加载速度
-        initialLiveManifestSize: 1, // 减少初始加载的清单大小
-        // 优化错误恢复
-        enableSkipStartupBeforeSync: true, // 允许跳过启动前的同步
-        enableWebVTT: true, // 启用WebVTT字幕支持
-        enableCEA708Captions: false, // 禁用CEA708字幕
-        captionsTextTrack1Label: '',
-        captionsTextTrack1LanguageCode: '',
-        captionsTextTrack2Label: '',
-        captionsTextTrack2LanguageCode: ''
+        maxFragLookUpTolerance: 0.25,
+        testBandwidth: false,
+        capLevelToPlayerSize: false,
+        autoStartLoad: true,
+        maxAudioBufferSize: 600 * 1000 * 1000,
+        maxBufferLength: 600,
+        maxMaxBufferLength: 1800
     };
 
     // Create new ArtPlayer instance
@@ -529,122 +527,87 @@ function initPlayer(videoUrl) {
                 hls.loadSource(url);
                 hls.attachMedia(video);
 
-                // enable airplay, from https://github.com/video-dev/hls.js/issues/5989
-                // 检查是否已存在source元素，如果存在则更新，不存在则创建
                 let sourceElement = video.querySelector('source');
                 if (sourceElement) {
-                    // 更新现有source元素的URL
                     sourceElement.src = videoUrl;
                 } else {
-                    // 创建新的source元素
                     sourceElement = document.createElement('source');
                     sourceElement.src = videoUrl;
                     video.appendChild(sourceElement);
                 }
                 video.disableRemotePlayback = false;
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+                    const levels = data.levels;
+                    if (levels && levels.length > 0) {
+                        const highestLevel = levels.length - 1;
+                        hls.currentLevel = highestLevel;
+                        console.log(`已设置为最高画质: ${levels[highestLevel].height}p, 比特率: ${(levels[highestLevel].bitrate / 1000000).toFixed(2)}Mbps`);
+                    }
                     video.play().catch(e => {
                     });
                 });
 
+                hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
+                    const level = hls.levels[data.level];
+                    if (level) {
+                        console.log(`当前画质: ${level.height}p, 比特率: ${(level.bitrate / 1000000).toFixed(2)}Mbps`);
+                    }
+                });
+
                 hls.on(Hls.Events.ERROR, function (event, data) {
-                    // 增加错误计数
                     errorCount++;
 
-                    // 处理bufferAppendError
                     if (data.details === 'bufferAppendError') {
                         bufferAppendErrorCount++;
-                        console.warn('Buffer append error, count:', bufferAppendErrorCount);
-                        
-                        // 如果视频已经开始播放，尝试恢复
                         if (playbackStarted) {
-                            if (bufferAppendErrorCount >= 5) {
-                                console.log('Attempting to recover from buffer append error...');
-                                hls.recoverMediaError();
-                                bufferAppendErrorCount = 0;
-                            }
                             return;
                         }
 
-                        // 如果出现多次bufferAppendError但视频未播放，尝试恢复
-                        if (bufferAppendErrorCount >= 3) {
+                        if (bufferAppendErrorCount >= 2) {
                             hls.recoverMediaError();
                         }
                     }
 
-                    // 处理网络错误
-                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                        console.warn('Network error:', data.details);
-                        if (data.fatal) {
-                            console.log('Attempting to restart load due to fatal network error...');
-                            hls.startLoad();
-                        }
-                    }
-
-                    // 处理媒体错误
-                    if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                        console.warn('Media error:', data.details);
-                        if (data.fatal) {
-                            console.log('Attempting to recover from media error...');
-                            hls.recoverMediaError();
-                        }
-                    }
-
-                    // 处理其他致命错误
                     if (data.fatal && !playbackStarted) {
-                        console.error('Fatal error before playback started:', data);
-                        // 仅在多次恢复尝试后显示错误
-                        if (errorCount > 5 && !errorDisplayed) {
-                            errorDisplayed = true;
-                            showError('视频加载失败，可能是格式不兼容或源不可用');
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                if (errorCount > 5 && !errorDisplayed) {
+                                    errorDisplayed = true;
+                                    showError('视频加载失败，可能是格式不兼容或源不可用');
+                                }
+                                break;
                         }
                     }
-                });
 
-                // 监听缓冲状态
-                hls.on(Hls.Events.BUFFER_STALLED, function() {
-                    console.log('Buffer stalled, attempting to recover...');
-                    // 尝试降低视频质量以提高缓冲速度
-                    if (hls.levels && hls.levels.length > 0 && hls.currentLevel > 0) {
-                        hls.currentLevel = hls.currentLevel - 1;
-                        console.log('Lowered quality to level:', hls.currentLevel);
-                    }
-                });
-
-                // 监听缓冲已满事件
-                hls.on(Hls.Events.BUFFER_FULL, function() {
-                    console.log('Buffer full, slowing down loading...');
-                    // 缓冲已满时可以暂停加载，减少网络占用
-                    if (hls.loading) {
-                        hls.stopLoad();
-                    }
-                });
-
-                // 监听缓冲不足事件
-                hls.on(Hls.Events.BUFFER_EMPTY, function() {
-                    console.log('Buffer empty, resuming loading...');
-                    // 缓冲不足时恢复加载
-                    if (!hls.loading) {
-                        hls.startLoad();
-                    }
-                });
-
-                // 监听网络状态变化
-                window.addEventListener('online', function() {
-                    console.log('Network back online, resuming playback...');
-                    if (hls && !hls.loading) {
-                        hls.startLoad();
-                    }
-                    if (video.paused && playbackStarted) {
-                        video.play().catch(e => {});
-                    }
-                });
-
-                window.addEventListener('offline', function() {
-                    console.log('Network offline, pausing playback...');
-                    if (!video.paused) {
-                        video.pause();
+                    if (data.fatal && playbackStarted) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                setTimeout(() => {
+                                    hls.startLoad();
+                                }, 1000);
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                setTimeout(() => {
+                                    hls.recoverMediaError();
+                                }, 1000);
+                                break;
+                            default:
+                                if (errorCount > 3 && !errorDisplayed) {
+                                    errorDisplayed = true;
+                                    showError('播放出错，正在尝试恢复...');
+                                    setTimeout(() => {
+                                        hls.recoverMediaError();
+                                    }, 2000);
+                                }
+                                break;
+                        }
                     }
                 });
 
@@ -864,45 +827,17 @@ class CustomHlsJsLoader extends Hls.DefaultConfig.loader {
 function filterAdsFromM3U8(m3u8Content, strictMode = false) {
     if (!m3u8Content) return '';
 
+    // 按行分割M3U8内容
     const lines = m3u8Content.split('\n');
     const filteredLines = [];
-    let isSkipping = false;
 
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
+        const line = lines[i];
 
-        // 策略 A: 识别常见的广告切片特征
-        // 很多广告切片时长非常固定（如 3s, 5s, 10s）且夹在 DISCONTINUITY 之间
-        if (line.startsWith('#EXTINF:')) {
-            const duration = parseFloat(line.split(':')[1]);
-            // 如果开启严格模式，过滤掉时长极短（小于2秒）的疑似广告片段
-            if (strictMode && duration < 2.0) {
-                // 寻找下一行 URL 并跳过
-                i++; 
-                continue;
-            }
+        // 只过滤#EXT-X-DISCONTINUITY标识
+        if (!line.includes('#EXT-X-DISCONTINUITY')) {
+            filteredLines.push(line);
         }
-
-        // 策略 B: 保护 DISCONTINUITY 标签
-        // 不要删除它，但如果它连续出现，可以合并（减少解析压力）
-        if (line === '#EXT-X-DISCONTINUITY') {
-            if (filteredLines[filteredLines.length - 1] === '#EXT-X-DISCONTINUITY') {
-                continue;
-            }
-        }
-
-        // 策略 C: 过滤特定关键词（黑名单）
-        // 如果切片地址包含常见的广告商关键词，则过滤
-        const adKeywords = ['/ads/', 'adshow', 'googleads', 'doubleclick'];
-        if (adKeywords.some(key => line.includes(key)) && !line.startsWith('#')) {
-            // 如果上一行是 EXTINF，也要把上一行删掉
-            if (filteredLines.length > 0 && filteredLines[filteredLines.length - 1].startsWith('#EXTINF')) {
-                filteredLines.pop();
-            }
-            continue;
-        }
-
-        filteredLines.push(line);
     }
 
     return filteredLines.join('\n');
