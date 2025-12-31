@@ -414,10 +414,10 @@ function initPlayer(videoUrl) {
         loader: adFilteringEnabled ? CustomHlsJsLoader : Hls.DefaultConfig.loader,
         enableWorker: true,
         lowLatencyMode: false,
-        backBufferLength: 300,
-        maxBufferLength: 600,
-        maxMaxBufferLength: 1800,
-        maxBufferSize: 600 * 1000 * 1000,
+        backBufferLength: 60,
+        maxBufferLength: 120,
+        maxMaxBufferLength: 300,
+        maxBufferSize: 300 * 1000 * 1000,
         maxBufferHole: 0.5,
         fragLoadingMaxRetry: 10,
         fragLoadingMaxRetryTimeout: 120000,
@@ -447,9 +447,9 @@ function initPlayer(videoUrl) {
         testBandwidth: false,
         capLevelToPlayerSize: false,
         autoStartLoad: true,
-        maxAudioBufferSize: 600 * 1000 * 1000,
-        maxBufferLength: 600,
-        maxMaxBufferLength: 1800
+        maxAudioBufferSize: 300 * 1000 * 1000,
+        maxBufferLength: 120,
+        maxMaxBufferLength: 300
     };
 
     // Create new ArtPlayer instance
