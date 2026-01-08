@@ -456,47 +456,78 @@ async function fetchDoubanData(url) {
         }
     };
 
+    // 定义多个备用API
+    const fallbackApis = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        `https://cors-anywhere.herokuapp.com/${url}`,
+        `https://proxy.cors.sh/${url}`
+    ];
+
     try {
+        // 尝试1: 直接通过代理服务器请求
         // 添加鉴权参数到代理URL
         const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
             await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(url)) :
             PROXY_URL + encodeURIComponent(url);
             
-        // 尝试直接访问（豆瓣API可能允许部分CORS请求）
         const response = await fetch(proxiedUrl, fetchOptions);
         clearTimeout(timeoutId);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        if (response.ok) {
+            return await response.json();
         }
-        
-        return await response.json();
+        console.error(`直接代理请求失败，状态码: ${response.status}，尝试备用方案`);
     } catch (err) {
         console.error("豆瓣 API 请求失败（直接代理）：", err);
-        
-        // 失败后尝试备用方法：作为备选
-        const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        
+    }
+    
+    // 尝试备用API
+    for (let i = 0; i < fallbackApis.length; i++) {
+        const fallbackUrl = fallbackApis[i];
         try {
-            const fallbackResponse = await fetch(fallbackUrl);
+            console.log(`尝试备用API ${i+1}: ${fallbackUrl}`);
+            const fallbackResponse = await fetch(fallbackUrl, {
+                signal: controller.signal,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                }
+            });
             
             if (!fallbackResponse.ok) {
-                throw new Error(`备用API请求失败! 状态: ${fallbackResponse.status}`);
+                console.error(`备用API ${i+1} 请求失败，状态码: ${fallbackResponse.status}`);
+                continue;
             }
             
-            const data = await fallbackResponse.json();
-            
-            // 解析原始内容
-            if (data && data.contents) {
-                return JSON.parse(data.contents);
+            let data;
+            if (fallbackUrl.includes('api.allorigins.win')) {
+                // api.allorigins.win 返回的是包含contents字段的JSON
+                data = await fallbackResponse.json();
+                if (data && data.contents) {
+                    return JSON.parse(data.contents);
+                }
             } else {
-                throw new Error("无法获取有效数据");
+                // 其他代理服务直接返回原始JSON
+                try {
+                    data = await fallbackResponse.json();
+                    return data;
+                } catch (jsonErr) {
+                    // 如果直接解析失败，尝试作为文本处理
+                    const text = await fallbackResponse.text();
+                    return JSON.parse(text);
+                }
             }
         } catch (fallbackErr) {
-            console.error("豆瓣 API 备用请求也失败：", fallbackErr);
-            throw fallbackErr; // 向上抛出错误，让调用者处理
+            console.error(`备用API ${i+1} 请求失败：`, fallbackErr);
+            // 继续尝试下一个备用API
+            continue;
         }
     }
+    
+    // 所有方案都失败
+    clearTimeout(timeoutId);
+    // 返回一个空数据结构，避免前端崩溃
+    return { subjects: [] };
 }
 
 // 抽取渲染豆瓣卡片的逻辑到单独函数
