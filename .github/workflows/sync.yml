@@ -1,36 +1,45 @@
-name: Upstream Sync
-
-permissions:
-  contents: write
+name: Sync LibreTV (No Merge)
 
 on:
   schedule:
-    - cron: "0 4 * * *" # At 12PM UTC+8
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
-  sync_latest_from_upstream:
-    name: Sync latest commits from upstream repo
+  sync:
     runs-on: ubuntu-latest
-    if: ${{ github.event.repository.fork }}
+    permissions:
+      contents: write
 
     steps:
-      # Step 1: run a standard checkout action
-      - name: Checkout target repo
+      - name: Checkout private repo
         uses: actions/checkout@v4
-
-      # Step 2: run the sync action
-      - name: Sync upstream changes
-        id: sync
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
         with:
-          upstream_sync_repo: daili115/LibreTV
-          upstream_sync_branch: main
-          target_sync_branch: main
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: Sync check
-        if: failure()
+      - name: Configure Git
         run: |
-          echo "[Error] Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork."
-          exit 1
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync Files
+        run: |
+          # 1. 更改上游地址为 LibreTV
+          git remote add upstream https://github.com/daili115/LibreTV.git
+          git fetch upstream
+          
+          # 2. 强制覆盖文件，排除 .github 文件夹
+          # 注意：确认上游主分支名，LibreTV 通常是 main
+          git checkout upstream/main -- . ':!.github'
+          
+          # 3. 清理不在上游库中的多余文件，但保留 .github
+          git clean -fd -e .github/
+          
+          # 4. 检查是否有变动并提交
+          git add -A
+          if ! git diff --cached --exit-code; then
+            git commit -m "chore: sync from LibreTV (excluding .github)"
+            git push origin main
+          else
+            echo "Everything is up to date."
+          fi
