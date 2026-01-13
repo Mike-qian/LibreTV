@@ -1,7 +1,7 @@
 // 豆瓣热门电影电视剧推荐功能
 
 // 豆瓣标签列表 - 修改为默认标签
-let defaultMovieTags = ['热门', '最新', '经典', '豆瓣高分', '冷门佳片', '华语', '欧美', '韩国', '日本', '动作', '喜剧', '日综', '爱情', '科幻', '悬疑', '恐怖', '治愈'];
+let defaultMovieTags = ['热门', '最新', '经典', '豆瓣高分', '冷门佳片', '华语', '欧美', '韩国', '日本', '动作', '喜剧', '爱情', '科幻', '悬疑', '恐怖', '治愈'];
 let defaultTvTags = ['热门', '美剧', '英剧', '韩剧', '日剧', '国产剧', '港剧', '日本动画', '综艺', '纪录片'];
 
 // 用户标签列表 - 存储用户实际使用的标签（包含保留的系统标签和用户添加的自定义标签）
@@ -456,78 +456,42 @@ async function fetchDoubanData(url) {
         }
     };
 
-    // 定义多个备用API
-    const fallbackApis = [
-        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        `https://cors-anywhere.herokuapp.com/${url}`,
-        `https://proxy.cors.sh/${url}`
-    ];
-
     try {
-        // 尝试1: 直接通过代理服务器请求
-        // 添加鉴权参数到代理URL
-        const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-            await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(url)) :
-            PROXY_URL + encodeURIComponent(url);
-            
-        const response = await fetch(proxiedUrl, fetchOptions);
+        // 尝试直接访问（豆瓣API可能允许部分CORS请求）
+        const response = await fetch(PROXY_URL + encodeURIComponent(url), fetchOptions);
         clearTimeout(timeoutId);
         
-        if (response.ok) {
-            return await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.error(`直接代理请求失败，状态码: ${response.status}，尝试备用方案`);
+        
+        return await response.json();
     } catch (err) {
         console.error("豆瓣 API 请求失败（直接代理）：", err);
-    }
-    
-    // 尝试备用API
-    for (let i = 0; i < fallbackApis.length; i++) {
-        const fallbackUrl = fallbackApis[i];
+        
+        // 失败后尝试备用方法：作为备选
+        const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        
         try {
-            console.log(`尝试备用API ${i+1}: ${fallbackUrl}`);
-            const fallbackResponse = await fetch(fallbackUrl, {
-                signal: controller.signal,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-                }
-            });
+            const fallbackResponse = await fetch(fallbackUrl);
             
             if (!fallbackResponse.ok) {
-                console.error(`备用API ${i+1} 请求失败，状态码: ${fallbackResponse.status}`);
-                continue;
+                throw new Error(`备用API请求失败! 状态: ${fallbackResponse.status}`);
             }
             
-            let data;
-            if (fallbackUrl.includes('api.allorigins.win')) {
-                // api.allorigins.win 返回的是包含contents字段的JSON
-                data = await fallbackResponse.json();
-                if (data && data.contents) {
-                    return JSON.parse(data.contents);
-                }
+            const data = await fallbackResponse.json();
+            
+            // 解析原始内容
+            if (data && data.contents) {
+                return JSON.parse(data.contents);
             } else {
-                // 其他代理服务直接返回原始JSON
-                try {
-                    data = await fallbackResponse.json();
-                    return data;
-                } catch (jsonErr) {
-                    // 如果直接解析失败，尝试作为文本处理
-                    const text = await fallbackResponse.text();
-                    return JSON.parse(text);
-                }
+                throw new Error("无法获取有效数据");
             }
         } catch (fallbackErr) {
-            console.error(`备用API ${i+1} 请求失败：`, fallbackErr);
-            // 继续尝试下一个备用API
-            continue;
+            console.error("豆瓣 API 备用请求也失败：", fallbackErr);
+            throw fallbackErr; // 向上抛出错误，让调用者处理
         }
     }
-    
-    // 所有方案都失败
-    clearTimeout(timeoutId);
-    // 返回一个空数据结构，避免前端崩溃
-    return { subjects: [] };
 }
 
 // 抽取渲染豆瓣卡片的逻辑到单独函数
@@ -563,13 +527,15 @@ function renderDoubanCards(data, container) {
             // 1. 直接使用豆瓣图片URL (添加no-referrer属性)
             const originalCoverUrl = item.cover;
             
+            // 2. 也准备代理URL作为备选
+            const proxiedCoverUrl = PROXY_URL + encodeURIComponent(originalCoverUrl);
+            
             // 为不同设备优化卡片布局
             card.innerHTML = `
                 <div class="relative w-full aspect-[2/3] overflow-hidden cursor-pointer" onclick="fillAndSearchWithDouban('${safeTitle}')">
                     <img src="${originalCoverUrl}" alt="${safeTitle}" 
                         class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                        data-original-cover="${originalCoverUrl}"
-                        onerror="if (window.ProxyAuth) { const img = this; const originalUrl = img.getAttribute('data-original-cover'); window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(originalUrl)).then(proxiedUrl => { img.onerror = null; img.src = proxiedUrl; img.classList.add('object-contain'); }); } else { this.onerror = null; }"
+                        onerror="this.onerror=null; this.src='${proxiedCoverUrl}'; this.classList.add('object-contain');"
                         loading="lazy" referrerpolicy="no-referrer">
                     <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60"></div>
                     <div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-sm">

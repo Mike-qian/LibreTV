@@ -24,27 +24,14 @@ async function handleApiRequest(url) {
                 ? `${customApi}${API_CONFIG.search.path}${encodeURIComponent(searchQuery)}`
                 : `${API_SITES[source].api}${API_CONFIG.search.path}${encodeURIComponent(searchQuery)}`;
             
-            // 添加超时处理 - 减少超时时间以提高响应速度
+            // 添加超时处理
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             try {
-                // 添加鉴权参数到代理URL
-                const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-                    await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(apiUrl)) :
-                    PROXY_URL + encodeURIComponent(apiUrl);
-                    
-                // 使用Keep-Alive和HTTP/2提高连接复用
-                const response = await fetch(proxiedUrl, {
-                    headers: {
-                        ...API_CONFIG.search.headers,
-                        'Connection': 'keep-alive',
-                        'Keep-Alive': 'timeout=5, max=1000'
-                    },
-                    signal: controller.signal,
-                    // 使用缓存控制策略
-                    cache: 'no-cache',
-                    credentials: 'omit'
+                const response = await fetch(PROXY_URL + encodeURIComponent(apiUrl), {
+                    headers: API_CONFIG.search.headers,
+                    signal: controller.signal
                 });
                 
                 clearTimeout(timeoutId);
@@ -76,10 +63,6 @@ async function handleApiRequest(url) {
                 });
             } catch (fetchError) {
                 clearTimeout(timeoutId);
-                // 如果是超时错误，提供更友好的错误信息
-                if (fetchError.name === 'AbortError') {
-                    throw new Error('API请求超时，请尝试其他数据源');
-                }
                 throw fetchError;
             }
         }
@@ -130,12 +113,7 @@ async function handleApiRequest(url) {
             const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             try {
-                // 添加鉴权参数到代理URL
-                const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-                    await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(detailUrl)) :
-                    PROXY_URL + encodeURIComponent(detailUrl);
-                    
-                const response = await fetch(proxiedUrl, {
+                const response = await fetch(PROXY_URL + encodeURIComponent(detailUrl), {
                     headers: API_CONFIG.detail.headers,
                     signal: controller.signal
                 });
@@ -231,13 +209,8 @@ async function handleCustomApiSpecialDetail(id, customApi) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        // 添加鉴权参数到代理URL
-        const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-            await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(detailUrl)) :
-            PROXY_URL + encodeURIComponent(detailUrl);
-            
         // 获取详情页HTML
-        const response = await fetch(proxiedUrl, {
+        const response = await fetch(PROXY_URL + encodeURIComponent(detailUrl), {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             },
@@ -298,13 +271,8 @@ async function handleSpecialSourceDetail(id, sourceCode) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        // 添加鉴权参数到代理URL
-        const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-            await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(detailUrl)) :
-            PROXY_URL + encodeURIComponent(detailUrl);
-            
         // 获取详情页HTML
-        const response = await fetch(proxiedUrl, {
+        const response = await fetch(PROXY_URL + encodeURIComponent(detailUrl), {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             },
@@ -388,12 +356,7 @@ async function handleAggregatedSearch(searchQuery) {
                 setTimeout(() => reject(new Error(`${source}源搜索超时`)), 8000)
             );
             
-            // 添加鉴权参数到代理URL
-            const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-                await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(apiUrl)) :
-                PROXY_URL + encodeURIComponent(apiUrl);
-            
-            const fetchPromise = fetch(proxiedUrl, {
+            const fetchPromise = fetch(PROXY_URL + encodeURIComponent(apiUrl), {
                 headers: API_CONFIG.search.headers
             });
             
@@ -502,12 +465,7 @@ async function handleMultipleCustomSearch(searchQuery, customApiUrls) {
                 setTimeout(() => reject(new Error(`自定义API ${index+1} 搜索超时`)), 8000)
             );
             
-            // 添加鉴权参数到代理URL
-            const proxiedUrl = await window.ProxyAuth?.addAuthToProxyUrl ? 
-                await window.ProxyAuth.addAuthToProxyUrl(PROXY_URL + encodeURIComponent(fullUrl)) :
-                PROXY_URL + encodeURIComponent(fullUrl);
-            
-            const fetchPromise = fetch(proxiedUrl, {
+            const fetchPromise = fetch(PROXY_URL + encodeURIComponent(fullUrl), {
                 headers: API_CONFIG.search.headers
             });
             

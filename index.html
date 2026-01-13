@@ -2,7 +2,10 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>LibreTV - 免费在线视频搜索与观看平台</title>
     <meta name="description" content="LibreTV是一个免费的在线视频搜索平台，无广告、安全，提供来自多个视频源的内容搜索与观看服务，无需注册即可使用。">
     <meta name="keywords" content="在线视频,免费视频,视频搜索,电影,电视剧,LibreTV">
@@ -13,7 +16,7 @@
     <link rel="apple-touch-icon" href="image/logo-black.png">
     <link rel="manifest" href="manifest.json">
     
-    <script src="libs/tailwindcss.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/index.css">
 </head>
@@ -208,7 +211,7 @@
                         <!-- 搜索输入 -->
                         <input type="text" 
                                id="searchInput" 
-                               class="flex-1 bg-[#111] border-y border-[#333] text-white px-6 py-0 focus:outline-none transition-colors min-w-0" 
+                               class="flex-1 bg-[#111] border-y border-[#333] text-white px-6 py-0 focus:outline-none transition-colors" 
                                placeholder="搜索你喜欢的视频..." 
                                autocomplete="off"
                                aria-label="视频搜索框"
@@ -342,10 +345,7 @@
                 <form id="passwordForm" onsubmit="handlePasswordSubmit(); return false;">
                     <input type="text" name="username" id="username" autocomplete="username" style="display:none" tabindex="-1" aria-hidden="true">
                     <input type="password" id="passwordInput" class="w-full bg-[#111] border border-[#333] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-white transition-colors" placeholder="密码..." autocomplete="new-password">
-                    <div class="mt-4 w-full flex space-x-4">
-                        <button id="passwordSubmitBtn" type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">提交</button>
-                        <button id="passwordCancelBtn" type="button" onclick="hidePasswordModal()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">取消</button>
-                    </div>
+                    <button id="passwordSubmitBtn" type="submit" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">提交</button>
                 </form>
                 <p id="passwordError" class="text-red-500 mt-2 hidden">密码错误，请重试</p>
             </div>
@@ -414,8 +414,6 @@
         window._jsSha256 = window.sha256;
     </script>
     <script src="js/config.js"></script>
-    <script src="js/proxy-auth.js"></script>
-    <script src="js/customer_site.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/api.js"></script>
     <script src="js/douban.js"></script>
@@ -426,6 +424,19 @@
     <!-- PWA 注册 -->
     <script src="js/pwa-register.js"></script>
 
+    <!-- 增强管理器 -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/animation-manager.js"></script>
+    <script src="js/responsive-manager.js"></script>
+    <script src="js/advanced-player.js"></script>
+    <script src="js/playback-enhancer.js"></script>
+    <script src="js/intelligent-search.js"></script>
+    <script src="js/content-discovery.js"></script>
+    <script src="js/personalization-manager.js?v=1642267849"></script>
+    <script src="js/performance-optimizer.js?v=1642267849"></script>
+    <script src="js/accessibility-manager.js?v=1642267849"></script>
+    <script src="js/i18n-manager.js?v=1642267849"></script>
+
     <!-- 环境变量注入脚本 -->
     <script>
         // 创建全局环境变量对象
@@ -434,6 +445,7 @@
         // 注入服务器端环境变量 (将由服务器端替换)
         // PASSWORD 变量将在这里被服务器端注入
         window.__ENV__.PASSWORD = "{{PASSWORD}}";
+        window.__ENV__.ADMINPASSWORD = "{{ADMINPASSWORD}}";
     </script>
 
     <!-- 版本检测脚本 -->
