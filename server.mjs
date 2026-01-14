@@ -145,6 +145,10 @@ app.get('/proxy/*', async (req, res) => {
     
     const makeRequest = async () => {
       try {
+        // 确保 Referer 头被正确设置
+        const targetOrigin = new URL(targetUrl).origin;
+        log(`代理请求 ${targetUrl}，设置 Referer 为 ${targetOrigin}`);
+        
         return await axios({
           method: 'get',
           url: targetUrl,
@@ -152,8 +156,12 @@ app.get('/proxy/*', async (req, res) => {
           timeout: config.timeout,
           headers: {
             'User-Agent': config.userAgent,
-            'Referer': new URL(targetUrl).origin // 添加正确的Referer头
-          }
+            'Referer': targetOrigin, // 明确设置 Referer 头
+            'Host': new URL(targetUrl).host // 添加 Host 头
+          },
+          // 确保 axios 不会自动处理 Referer 头
+          validateStatus: (status) => status >= 200 && status < 300 || status === 302,
+          maxRedirects: 5
         });
       } catch (error) {
         if (retries < maxRetries) {
