@@ -122,10 +122,14 @@ function isValidUrl(urlString) {
   }
 }
 
-// 代理路由
-app.get('/proxy/:encodedUrl', async (req, res) => {
+// 代理路由 - 使用通配符匹配整个路径
+app.get('/proxy/*', async (req, res) => {
   try {
-    const encodedUrl = req.params.encodedUrl;
+    // 获取完整的路径，然后提取编码后的URL（去掉/proxy/前缀）
+    const fullPath = req.originalUrl;
+    const encodedUrl = fullPath.replace(/^\/proxy\//, '');
+    
+    // 解码目标URL
     const targetUrl = decodeURIComponent(encodedUrl);
 
     // 安全验证
@@ -147,7 +151,8 @@ app.get('/proxy/:encodedUrl', async (req, res) => {
           responseType: 'stream',
           timeout: config.timeout,
           headers: {
-            'User-Agent': config.userAgent
+            'User-Agent': config.userAgent,
+            'Referer': new URL(targetUrl).origin // 添加正确的Referer头
           }
         });
       } catch (error) {
