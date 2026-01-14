@@ -122,14 +122,10 @@ function isValidUrl(urlString) {
   }
 }
 
-// 代理路由 - 使用通配符匹配整个路径
-app.get('/proxy/*', async (req, res) => {
+// 代理路由
+app.get('/proxy/:encodedUrl', async (req, res) => {
   try {
-    // 获取完整的路径，然后提取编码后的URL（去掉/proxy/前缀）
-    const fullPath = req.originalUrl;
-    const encodedUrl = fullPath.replace(/^\/proxy\//, '');
-    
-    // 解码目标URL
+    const encodedUrl = req.params.encodedUrl;
     const targetUrl = decodeURIComponent(encodedUrl);
 
     // 安全验证
@@ -145,23 +141,14 @@ app.get('/proxy/*', async (req, res) => {
     
     const makeRequest = async () => {
       try {
-        // 确保 Referer 头被正确设置
-        const targetOrigin = new URL(targetUrl).origin;
-        log(`代理请求 ${targetUrl}，设置 Referer 为 ${targetOrigin}`);
-        
         return await axios({
           method: 'get',
           url: targetUrl,
           responseType: 'stream',
           timeout: config.timeout,
           headers: {
-            'User-Agent': config.userAgent,
-            'Referer': targetOrigin, // 明确设置 Referer 头
-            'Host': new URL(targetUrl).host // 添加 Host 头
-          },
-          // 确保 axios 不会自动处理 Referer 头
-          validateStatus: (status) => status >= 200 && status < 300 || status === 302,
-          maxRedirects: 5
+            'User-Agent': config.userAgent
+          }
         });
       } catch (error) {
         if (retries < maxRetries) {
