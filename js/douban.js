@@ -451,9 +451,9 @@ async function fetchDoubanData(url) {
     const fetchOptions = {
         signal: controller.signal,
         headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            'Referer': 'https://movie.douban.com/',
-            'Accept': 'application/json, text/plain, */*',
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": "https://movie.douban.com/",
+            "Accept": "application/json, text/plain, */*",
         }
     };
 
@@ -478,7 +478,13 @@ async function fetchDoubanData(url) {
         const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(correctedUrl)}`;
         
         try {
-            const fallbackResponse = await fetch(fallbackUrl);
+            const fallbackResponse = await fetch(fallbackUrl, {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Referer": "https://movie.douban.com/",
+                    "Accept": "application/json, text/plain, */*",
+                }
+            });
             
             if (!fallbackResponse.ok) {
                 throw new Error(`备用API请求失败! 状态: ${fallbackResponse.status}`);
