@@ -423,7 +423,8 @@ function renderRecommend(tag, pageLimit, pageStart) {
     container.classList.add("relative");
     container.insertAdjacentHTML('beforeend', loadingOverlayHTML);
     
-    const target = `https://movie.douban.com/j/search_subjects?type=${doubanMovieTvCurrentSwitch}&tag=${tag}&sort=recommend&page_limit=${pageLimit}&page_start=${pageStart}`;
+    // 使用正确的豆瓣API域名
+    const target = `https://movie.douban.com/j/search_subjects?type=${doubanMovieTvCurrentSwitch}&tag=${encodeURIComponent(tag)}&sort=recommend&page_limit=${pageLimit}&page_start=${pageStart}`;
     
     // 使用通用请求函数
     fetchDoubanData(target)
@@ -457,8 +458,11 @@ async function fetchDoubanData(url) {
     };
 
     try {
+        // 确保使用正确的豆瓣API域名
+        const correctedUrl = url.replace(/douban\.cmliussss\.com/g, 'douban.com');
+        
         // 尝试直接访问（豆瓣API可能允许部分CORS请求）
-        const response = await fetch(PROXY_URL + encodeURIComponent(url), fetchOptions);
+        const response = await fetch(PROXY_URL + encodeURIComponent(correctedUrl), fetchOptions);
         clearTimeout(timeoutId);
         
         if (!response.ok) {
@@ -470,7 +474,8 @@ async function fetchDoubanData(url) {
         console.error("豆瓣 API 请求失败（直接代理）：", err);
         
         // 失败后尝试备用方法：作为备选
-        const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        const correctedUrl = url.replace(/douban\.cmliussss\.com/g, 'douban.com');
+        const fallbackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(correctedUrl)}`;
         
         try {
             const fallbackResponse = await fetch(fallbackUrl);
@@ -523,19 +528,17 @@ function renderDoubanCards(data, container) {
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
             
-            // 处理图片URL
-            // 1. 直接使用豆瓣图片URL (添加no-referrer属性)
+            // 处理图片URL - 确保使用正确的豆瓣图片URL
             const originalCoverUrl = item.cover;
             
-            // 2. 也准备代理URL作为备选
+            // 2. 准备代理URL作为备选，确保使用正确的代理路径
             const proxiedCoverUrl = PROXY_URL + encodeURIComponent(originalCoverUrl);
             
             // 为不同设备优化卡片布局
             card.innerHTML = `
                 <div class="relative w-full aspect-[2/3] overflow-hidden cursor-pointer" onclick="fillAndSearchWithDouban('${safeTitle}')">
-                    <img src="${originalCoverUrl}" alt="${safeTitle}" 
+                    <img src="${proxiedCoverUrl}" alt="${safeTitle}" 
                         class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                        onerror="this.onerror=null; this.src='${proxiedCoverUrl}'; this.classList.add('object-contain');"
                         loading="lazy" referrerpolicy="no-referrer">
                     <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60"></div>
                     <div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-sm">
