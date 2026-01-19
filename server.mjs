@@ -144,7 +144,7 @@ app.get('/proxy/:encodedUrl', async (req, res) => {
         const headers = {
           'User-Agent': config.userAgent,
         };
-        if (targetUrl.includes('.douban.com')) {
+        if (targetUrl.includes('.douban.com') || targetUrl.includes('.doubanio.com')) {
           headers['Referer'] = 'https://movie.douban.com/';
         }
         return await axios({
